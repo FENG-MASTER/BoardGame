@@ -7,18 +7,18 @@
 				<view class="text" style="-webkit-flex: 1;flex: 1;" @click="nextRound">当前回合数:{{round}}</view>
 				<view class="text" style="-webkit-flex: 1;flex: 1;">{{roundDesc[round-1].title}}</view>
 			</view>
+09
 
 
-
-			<view class="uni-flex uni-row flex-item flex-item-V " style="height: 120px;"
+			<view class="uni-flex uni-row flex-item flex-item-V " 
 				v-for="n in Math.ceil(resourceTypeList.length / 4)">
-				<view class="text" style="-webkit-flex: 1;flex: 1;" v-for="index in 4">
-					<uni-section :title="resourceTypeList[(n-1) * 4 + index-1 ].name" type="line" padding>
+				<view class="text" style="-webkit-flex: 1;flex: 1;" v-for="index in (n<=4?4:2)">
+					{{resourceTypeList[(n-1) * 4 + index-1 ].name}}
 						<uni-number-box class="resource" :data-resource="resourceTypeList[(n-1) * 4 + index-1 ].name"
 							v-model="player[0].resource[resourceTypeList[(n-1) * 4 + index-1 ].name]"
 							:background="resourceTypeList[(n-1) * 4 + index-1 ].color" color="#fff" />
-					</uni-section>
-				</view>
+					
+				</view> 
 
 			</view>
 
@@ -54,7 +54,7 @@
 				<uni-grid :column="4" :highlight="true" @change="change">
 					<uni-grid-item v-for="(item, index) in allRandomMIList" :index="index" :key="index">
 						 <view :data-image-index="index" data-type="MI" @tap="refreshCard">{{index}}</view>
-						<image class="image" style="width: 200px;height: 300px;" mode="aspectFit" :data-src="item"
+						<image class="image" :data-image-index="index" data-type="MI" style="width: 200px;height: 300px;" mode="aspectFit" :data-src="item"
 							:src="item" @tap="previewImage" />
 					</uni-grid-item>
 				</uni-grid>
@@ -65,7 +65,7 @@
 				<uni-grid :column="4" :highlight="true" @change="change">
 					<uni-grid-item v-for="(item, index) in allRandomOList" :index="index" :key="index">
 						 <view :data-image-index="index" data-type="O" @tap="refreshCard">{{index}}</view>
-						<image class="image" style="width: 200px;height: 300px;" mode="aspectFit" :data-src="item"
+						<image class="image" :data-image-index="index" data-type="O" style="width: 200px;height: 300px;" mode="aspectFit" :data-src="item"
 							:src="item" @tap="previewImage"  /> 
 					</uni-grid-item>
 				</uni-grid> 
@@ -151,7 +151,7 @@
 						stage: 0,
 						name: "犁地",
 						desc: "开垦1个田地",
-						resourceType: "犁地",
+						resourceType: "耕地",
 						allResource: 0,
 						stableResourse: 1
 					},
@@ -169,7 +169,7 @@
 						stage: 0,
 						name: "森林",
 						desc: "获得3木头",
-						resourceType: "木",
+						resourceType: "木头",
 						allResource: 0,
 						eachAddResource: 3
 					},
@@ -222,8 +222,8 @@
 						id: 15,
 						stage: 2,
 						name: "西部采石场",
-						desc: "获得1石",
-						resourceType: "石",
+						desc: "获得1石头",
+						resourceType: "石头",
 						allResource: 0,
 						eachAddResource: 1
 					},
@@ -466,7 +466,7 @@
 			}
 		},
 		onLoad() {
-
+console.log("ai在阶段0动作里选择")
 			this.allActionCardList = this.sortAndRandomizeByStage(this.allActionCardList);
 			this.allAvailbleActionCardList = this.allActionCardList.slice(0, 10);
 			this.initPlayerData();
@@ -476,10 +476,10 @@
 		},
 		methods: {
 			initCardSelectData: function() {
-				for (const index in this.allAvailbleActionCardList) {
+				for (var index in this.allAvailbleActionCardList) {
 					this.allAvailbleActionCardList[index].actionSelectList = [];
 
-					for (const playerIndex in this.player) {
+					for (var playerIndex in this.player) {
 						this.allAvailbleActionCardList[index].actionSelectList[playerIndex] = {
 							playerId: this.player[playerIndex].id,
 							size: "0",
@@ -533,7 +533,7 @@
 
 			},
 			handleActionCardEachRound: function() {
-				for (const index in this.allActionCardList) {
+				for (var index in this.allActionCardList) {
 
 					if (this.allActionCardList[index].stableResourse != undefined) {
 						//固定资源节点
@@ -551,7 +551,7 @@
 			},
 			initPlayerData: function() {
 				this.player[0].resource = {};
-				for (const index in this.resourceTypeList) {
+				for (var index in this.resourceTypeList) {
 					this.player[0].resource[this.resourceTypeList[index].name] = this.resourceTypeList[index].initNum;
 				}
 				console.log('1')
@@ -562,15 +562,15 @@
 				var randomNumber = 0;
 				if (type === "MI") {
 
-					const min = 1;
-					const max = 2225;
+					var min = 1;
+					var max = 2225;
 					randomNumber = Math.floor(Math.random() * (max - min + 1)) + min;
 					baseUrl = baseUrl + "%E6%AC%A1%E8%A6%81%E5%8F%91%E5%B1%95%E5%8D%A1/ciyao" + randomNumber + ".jpg";
 
 				} else if (type === "O") {
 
-					const min = 1;
-					const max = 2613;
+					var min = 1;
+					var max = 2613;
 					randomNumber = Math.floor(Math.random() * (max - min + 1)) + min;
 					baseUrl = baseUrl + "%E8%81%8C%E4%B8%9A%E5%8D%A1/zhiye" + randomNumber + ".jpg";
 				}
@@ -662,11 +662,18 @@
 				
 			},
 			previewImage: function(e) {
-				var current = e.target.dataset.src
-				var list = [];
-				list.push(current);
+				var type=e.currentTarget.dataset["type"];
+				var index=e.currentTarget.dataset["imageIndex"];
+			    var urls=null;
+				if(type==="O"){
+					urls=this.allRandomOList;
+				}else if(type==="MI"){
+					urls=this.allRandomMIList;
+				}
+			 
 				uni.previewImage({
-					urls: list
+					current:index,
+					urls: urls
 				})
 			},
 			refreshCard:function(e){
